@@ -2,6 +2,7 @@ package com.storm.wind.xpatch.util;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.BufferedWriter;
 import java.io.Closeable;
 import java.io.File;
 import java.io.FileInputStream;
@@ -9,6 +10,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 import java.util.Enumeration;
 import java.util.zip.CRC32;
@@ -111,6 +115,39 @@ public class FileUtils {
         }
     }
 
+    public static void copyFile(String sourcePath, String targetPath) {
+        copyFile(new File(sourcePath), new File(targetPath));
+    }
+
+    public static void copyFile(File source, File target) {
+
+        FileInputStream inputStream = null;
+        FileOutputStream outputStream = null;
+        try {
+            inputStream = new FileInputStream(source);
+            outputStream = new FileOutputStream(target);
+            FileChannel iChannel = inputStream.getChannel();
+            FileChannel oChannel = outputStream.getChannel();
+
+            ByteBuffer buffer = ByteBuffer.allocate(1024);
+            while (true) {
+                buffer.clear();
+                int r = iChannel.read(buffer);
+                if (r == -1) {
+                    break;
+                }
+                buffer.limit(buffer.position());
+                buffer.position(0);
+                oChannel.write(buffer);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            close(inputStream);
+            close(outputStream);
+        }
+    }
+
     public static void deleteDir(File file) {
         if (file.isDirectory()) {
             File[] files = file.listFiles();
@@ -202,6 +239,35 @@ public class FileUtils {
             if (null != bis) {
                 bis.close();
             }
+        }
+    }
+
+    public static void writeFile(String filePath, String content) {
+        if (filePath == null || filePath.isEmpty()) {
+            return;
+        }
+        if (content == null || content.isEmpty()) {
+            return;
+        }
+
+        File dstFile = new File(filePath);
+
+        if (!dstFile.getParentFile().exists()) {
+            dstFile.getParentFile().mkdirs();
+        }
+
+        FileOutputStream outputStream = null;
+        BufferedWriter writer = null;
+        try {
+            outputStream = new FileOutputStream(dstFile);
+            writer = new BufferedWriter(new OutputStreamWriter(outputStream));
+            writer.write(content);
+            writer.flush();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            close(outputStream);
+            close(writer);
         }
     }
 

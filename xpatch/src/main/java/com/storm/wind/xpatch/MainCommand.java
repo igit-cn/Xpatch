@@ -3,6 +3,7 @@ package com.storm.wind.xpatch;
 import com.storm.wind.xpatch.base.BaseCommand;
 import com.storm.wind.xpatch.task.ApkModifyTask;
 import com.storm.wind.xpatch.task.BuildAndSignApkTask;
+import com.storm.wind.xpatch.task.SaveApkSignatureTask;
 import com.storm.wind.xpatch.task.SoAndDexCopyTask;
 import com.storm.wind.xpatch.util.FileUtils;
 import com.storm.wind.xpatch.util.ManifestParser;
@@ -33,6 +34,14 @@ public class MainCommand extends BaseCommand {
 
     @Opt(opt = "l", longOpt = "log", hasArg = false, description = "show all the debug logs")
     private boolean showAllLogs = false;
+
+    @Opt(opt = "c", longOpt = "crach", hasArg = false,
+            description = "disable craching the apk's signature.")
+    private boolean disableCrackSignature = false;
+
+    @Opt(opt = "xm", longOpt = "xposed-modules", description = "the xposed mpdule files to be packaged into the apk, " +
+            "multi files should be seperated by :(mac) or ;(win) ")
+    private String xposedModules;
 
     // 原来apk中dex文件的数量
     private int dexFileCount = 0;
@@ -93,12 +102,14 @@ public class MainCommand extends BaseCommand {
             return;
         }
 
-        System.out.println(" !!!!! output apk path -->  " + output);
+        System.out.println(" !!!!! output apk path -->  " + output +
+                "  disableCrackSignature --> " + disableCrackSignature);
 
         String apkFileName = getBaseName(srcApkFile);
 
         // 中间文件临时存储的位置
-        String tempFilePath = srcApkFileParentPath + File.separator + currentTimeStr() + "-tmp" + File.separator;
+        String tempFilePath = srcApkFileParentPath + File.separator +
+                currentTimeStr() + "-tmp" + File.separator;
 
         // apk文件解压的目录
         unzipApkFilePath = tempFilePath + apkFileName + "-" + UNZIP_APK_FILE_NAME + File.separator;
@@ -106,6 +117,11 @@ public class MainCommand extends BaseCommand {
         if (showAllLogs) {
             System.out.println(" !!!!! srcApkFileParentPath  =  " + srcApkFileParentPath +
                     "\n unzipApkFilePath = " + unzipApkFilePath);
+        }
+
+        if (!disableCrackSignature) {
+            // save the apk original signature info, to support crach signature.
+            new SaveApkSignatureTask(apkPath, unzipApkFilePath).run();
         }
 
         // 先解压apk到指定目录下
@@ -121,10 +137,10 @@ public class MainCommand extends BaseCommand {
         String manifestFilePath = unzipApkFilePath + "AndroidManifest.xml";
 
         // parse the app main application full name from the manifest file
-        ManifestParser.Pair pair = ManifestParser.parseManidestFile(manifestFilePath);
+        ManifestParser.Pair pair = ManifestParser.parseManifestFile(manifestFilePath);
         String applicationName;
-        if (pair != null && pair.applictionName != null) {
-            applicationName = pair.applictionName;
+        if (pair != null && pair.applicationName != null) {
+            applicationName = pair.applicationName;
         } else {
             System.out.println(" Application name not found error !!!!!! ");
             applicationName = DEFAULT_APPLICATION_NAME;
@@ -139,7 +155,7 @@ public class MainCommand extends BaseCommand {
                 dexFileCount));
 
         // 2. copy xposed so and dex files into the unzipped apk
-        mXpatchTasks.add(new SoAndDexCopyTask(dexFileCount, unzipApkFilePath));
+        mXpatchTasks.add(new SoAndDexCopyTask(dexFileCount, unzipApkFilePath, getXposedModules(xposedModules)));
 
         // 3. compress all files into an apk and then sign it.
         mXpatchTasks.add(new BuildAndSignApkTask(keepBuildFiles, unzipApkFilePath, output));
@@ -184,5 +200,12 @@ public class MainCommand extends BaseCommand {
     private String currentTimeStr() {
         SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");//设置日期格式
         return df.format(new Date());
+    }
+
+    private String[] getXposedModules(String modules) {
+        if (modules == null || modules.isEmpty()) {
+            return null;
+        }
+        return modules.split(File.pathSeparator);
     }
 }
