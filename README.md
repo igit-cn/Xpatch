@@ -14,11 +14,11 @@ Xpatch的原理是对Apk文件进行二次打包，重新签名，并生成一�
 3.0版本开始，默认使用SandHook，同时，兼容切换为whale
 
 ## Xpatch工具包下载
-[点击我下载最新的Xpatch Jar包][1]    
+[下载最新的Xpatch Jar包][1]    
 或者进入Releases页面下载指定版本：[releases][2]
 
 ## Xpatch App版本(Xposed Tool)下载
-[点我下载XposedTool Apk][15]
+[XposedTool][16]  [下载XposedTool Apk][15]
 
 ## Xpatch使用方法
 Xpatch项目最终生成物是一个Jar包，此Jar使用起来非常简单，只需要一行命令，一个接入xposed hook功能的apk就生成：
@@ -93,14 +93,10 @@ com.blanke.mdwechat#MDWechat
 
 ## 可用的Xposed模块示例
 
- - [腾讯视频，爱奇艺去广告插件-RemoveVideoAdsPlugin](https://github.com/WindySha/RemoveVideoAdsPlugin)
  - [MDWechat][8]
  - [文本自定义][9]
- - ...
- - ...
+ - [RemoveVideoAdsPlugin](https://github.com/WindySha/RemoveVideoAdsPlugin)
  - **你自己编写的Xposed模块**
- 
-**Note：一般来说，只要app可以被Xpatch破解，与其相关的Xposed模块都是可用的。**
 
 
 ## 源码解析
@@ -219,6 +215,10 @@ version: 3.0
 `$ java -jar ../xpatch-3.0.jar ../Test.apk  -pkg com.test.test -vc 1000 -vn 1.1.1`
 2. 更改Hook框架为whale：  
 `$ java -jar ../xpatch-3.0.jar ../Test.apk  -w`
+
+### 4. 2021/01/13 updated  (Version 4.0)
+Update SandHook to the newest version and SandHook support the Android 11.
+
 ## Thanks
 
  - [Xposed][10]
@@ -242,5 +242,6 @@ version: 3.0
   [12]: https://github.com/pxb1988/dex2jar
   [13]: https://code.google.com/archive/p/android4me/downloads
   [14]: http://www.apache.org/licenses/LICENSE-2.0.html
-  [15]: https://xposed-tool-app.oss-cn-beijing.aliyuncs.com/data/xposed_tool_v2.0.2.apk
+  [15]: https://xposed-tool-app.oss-cn-beijing.aliyuncs.com/data/Xposed_Tool_2.0.3.apk
+  [16]: https://github.com/WindySha/xposed-tool-app
   
