@@ -95,14 +95,8 @@ com.blanke.mdwechat#MDWechat
 
  - [MDWechat][8]
  - [文本自定义][9]
- - [RemoveVideoAdsPlugin](https://github.com/WindySha/RemoveVideoAdsPlugin)
  - **你自己编写的Xposed模块**
 
-
-## 源码解析
-Xpatch源码解析博文已发布到个人技术公众号**Android葵花宝典**上。  
-扫一扫关注公众号，即可查看：  
-![](https://upload-images.jianshu.io/upload_images/1639238-ab6e0fceabfffdda.jpg?imageMogr2/auto-orient/strip%7CimageView2/2/w/180)
 
 ## 其他
 assets目录下的classes.dex是来加载设备上已安装的Xposed插件，其源代码也已经开源：  
